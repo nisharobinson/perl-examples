@@ -1,0 +1,90 @@
+#!/usr/bin/perl
+
+
+
+use strict;
+use warnings;
+use TAP::Parser::YAMLish::Reader ();
+use Data::Dumper;
+
+
+
+##########
+## Main ##
+##########
+# reusable reference
+my $reference;
+
+# show an example of valid yaml
+$reference = read_yaml('./yaml-reader-clean.yaml');
+if (defined($reference)) {
+	my %hash = %$reference;
+	print Dumper(\%hash);
+}
+undef($reference);
+
+# show an example of invalid yaml
+$reference = read_yaml('./yaml-reader-error.yaml');
+if (defined($reference)) {
+	my %hash = %$reference;
+	print Dumper(\%hash);
+}
+undef($reference);
+
+# show an example of file not found
+$reference = read_yaml('./yaml-reader-foo.yaml');
+if (defined($reference)) {
+	my %hash = %$reference;
+	print Dumper(\%hash);
+}
+undef($reference);
+
+
+
+exit;
+
+
+
+#################
+## Subroutines ##
+#################
+sub read_yaml {
+	# accept filename scalar
+	my ($filename) = @_;
+	# try to open filename, fail return undef
+	open(my $fh, '<', $filename) or do {
+		print STDERR 'Yaml file not found: '.$filename."\n";
+		return undef
+	};
+	# interator as code reference
+	my $interator = sub {
+		while (my $line = <$fh>) {
+			# don't return empty lines or lines
+			# starting with #
+			next if ($line =~ m'^$|^#');
+			return $line;
+		}
+	};
+	# new yaml reader
+	my $reader = TAP::Parser::YAMLish::Reader->new();
+	# hash reference variable
+	my $hash_ref;
+	# read from the interator
+	my $eval = eval {
+		$hash_ref = $reader->read($interator);
+	};
+	# close file handle
+	close($fh);
+	# eval is undef show invalid yaml file
+	if (not defined($eval)) {
+		print STDERR 'Malformed yaml file: '.$filename."\n"
+		            .$reader->get_raw();
+		return undef;
+	}
+	# if hash_ref has no length return undef
+	if (not defined($hash_ref) or not length($hash_ref)) {
+		return undef;
+	}
+	# finally if hash_ref checks out return it
+	return $hash_ref;
+}

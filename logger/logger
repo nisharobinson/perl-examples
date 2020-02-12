@@ -1,0 +1,131 @@
+#!/usr/bin/perl
+
+#########
+## Use ##
+#########
+use warnings;
+use strict;
+
+##########
+## Main ##
+##########
+# create a new logger object
+my $log = logger->new({ 
+	level => 'DEBUG',
+	fh => \*STDOUT,
+});
+
+# print to debug and info
+$log->DEBUG('apple');
+$log->INFO('cat');
+
+# change level
+$log->level('INFO');
+
+# print to debug and info
+$log->DEBUG('human');
+$log->INFO('fox');
+
+# print from a sub
+sub subroutine {
+	$log->DEBUG('tree');
+	$log->INFO('sea');
+}
+subroutine();
+
+##########
+## Exit ##
+##########
+exit;
+
+##############
+## Packages ##
+##############
+package logger;
+sub r_time {
+	my @lt = localtime(time);
+	for my $i (0..4) {
+		$lt[$i] = sprintf('%02d', $lt[$i]);
+	}
+	$lt[5] += 1900;
+	$lt[7] = sprintf('%03d', $lt[7]);
+	return "$lt[5]-$lt[4]-$lt[3] $lt[2]:$lt[1]:$lt[0]";
+}
+sub calling {
+	if (defined((caller(2))[3])) {
+		return (caller(2))[3];
+	}
+	else {
+		if (defined((caller(1))[0])) {
+			return (caller(1))[0];
+		}
+	}
+	return '';
+}
+sub level_to_number {
+	my $level = shift;
+	my %map = (
+		ERR	=>	1,
+		WARN	=>	2,
+		NOTICE	=>	3,
+		INFO	=>	4,
+		DEBUG	=>	5,
+	);
+	return $map{$level};
+}
+sub new {
+	my $class = shift;
+	my $config_ref = shift;
+	my %config = %$config_ref;
+	my $self = bless($config_ref, $class);
+	$self->{'text_level'} = $self->{'level'};
+	$self->{'level'} = level_to_number($self->{'level'});
+	return($self);
+}
+sub level {
+	my $self = shift;
+	my $level = shift;
+	$self->{'text_level'} = $level;
+	$self->{'level'} = level_to_number($level);
+}
+sub DEBUG {
+	my $self = shift;
+	my $line = shift;
+	if ($self->{'level'} <= 5) {
+		print { $self->{'fh'} } r_time().' '.calling()
+		.' ['.$self->{'text_level'}.'] '.$line."\n";
+	}
+}
+sub INFO {
+	my $self = shift;
+	my $line = shift;
+	if ($self->{'level'} <= 4) {
+		print { $self->{'fh'} } r_time().' '.calling()
+		.' ['.$self->{'text_level'}.'] '.$line."\n";
+	}
+}
+sub NOTICE {
+	my $self = shift;
+	my $line = shift;
+	if ($self->{'level'} <= 3) {
+		print { $self->{'fh'} } r_time().' '.calling()
+		.' ['.$self->{'text_level'}.'] '.$line."\n";
+	}
+}
+sub WARN {
+	my $self = shift;
+	my $line = shift;
+	if ($self->{'level'} <= 2) {
+		print { $self->{'fh'} } r_time().' '.calling()
+		.' ['.$self->{'text_level'}.'] '.$line."\n";
+	}
+}
+sub ERR {
+	my $self = shift;
+	my $line = shift;
+	if ($self->{'level'} <= 1) {
+		print { $self->{'fh'} } r_time().' '.calling()
+		.' ['.$self->{'text_level'}.'] '.$line."\n";
+	}
+}
+package main;

@@ -1,0 +1,20 @@
+#!/usr/bin/perl
+
+use DBI;
+use DBD::ODBC;
+use Data::Dumper;
+
+my ($dbh, $sth, @tables);
+
+$dbh = DBI->connect('DBI:ODBC:DRIVER={MDBTools};DBQ=contacts.mdb',
+    undef, undef, { RaiseError => 1});
+
+$sth = $dbh->table_info();
+
+while (my $row = $sth->fetchrow_hashref()) {
+    if ($row->{'TABLE_TYPE'} eq 'TABLE') {
+        push(@tables, $row->{'TABLE_NAME'});
+    }
+}
+
+print(Dumper(\@tables));

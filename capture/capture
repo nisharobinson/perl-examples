@@ -1,0 +1,40 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Data::Dumper;
+use IPC::Open3 ();
+
+
+
+sub capture {
+	my ($cmd) = @_;
+	my $pid = IPC::Open3::open3(
+		'NUL', \*STD_OUT, \*STD_ERR, $cmd
+	);
+	waitpid($pid, 0);
+	my $exit_code = $?;
+	my $line;
+	my (@std_out, @std_err);
+	while ($line = <STD_OUT>) {
+		chomp($line);
+		push(@std_out, $line);
+	}
+	while ($line = <STD_ERR>) {
+		chomp($line);
+		push(@std_err, $line);
+	}
+	return (\@std_out, \@std_err, $exit_code);
+}
+
+
+my ($std_out, $std_err, $exit_code);
+
+print '$cmd: ls'."\n";
+($std_out, $std_err, $exit_code) = capture('ls');
+print Dumper($std_out, $std_err, $exit_code);
+print "\n";
+
+print '$cmd: ls blah'."\n";
+($std_out, $std_err, $exit_code) = capture('ls blah');
+print Dumper($std_out, $std_err, $exit_code);

@@ -1,0 +1,15 @@
+---
+fruits:
+  - apple
+  - peach
+  - pear
+animals:
+  - dog
+  - cat
+  - bird
+food:
+error
+  pasta:
+    - penne
+    - rigatoni
+...
