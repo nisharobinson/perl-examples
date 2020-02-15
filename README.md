@@ -1,7 +1,8 @@
 # Perl Examples
-Various small projects written in Perl. 
 
-## Examples
+## Description
+Various small projects written in Perl.
+
 ### capture
 This shows how to capture both stdout stderr and the exit code of
 a system command using only core modules of perl.
