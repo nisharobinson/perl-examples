@@ -1,5 +1,5 @@
 # Perl Examples
-A collection of code snipets for solving problems in perl.
+Various small projects written in Perl. 
 
 ## Examples
 ### capture
