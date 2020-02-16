@@ -1,4 +1,4 @@
-# Perl Examples
+# Perl Projects
 
 ## Description
 Various small projects written in Perl.
